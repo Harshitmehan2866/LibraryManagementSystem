@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Library Management System</title>
+    <style>
+        body { font-family: Arial; margin: 30px; }
+        table { width: 80%; border-collapse: collapse; margin-bottom: 30px; }
+        table, th, td { border: 1px solid #888; }
+        th, td { padding: 10px; text-align: left; }
+        button { padding: 6px 12px; border: none; cursor: pointer; }
+        button:hover { opacity: 0.8; }
+        input, select { padding: 6px; margin: 5px; }
+        .add-btn { background-color: green; color: white; }
+        .add-btn:hover { background-color: darkgreen; }
+        .delete-btn { background-color: red; color: white; }
+        .delete-btn:hover { background-color: darkred; }
+        .edit-btn { background-color: orange; color: white; }
+        .edit-btn:hover { background-color: darkorange; }
+        .issue-btn { background-color: blue; color: white; }
+        .issue-btn:hover { background-color: darkblue; }
+        .return-btn { background-color: purple; color: white; }
+        .return-btn:hover { background-color: darkmagenta; }
+        .flash-success { color: green; margin-bottom: 20px; }
+        .flash-error { color: red; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<h1>Library Management System</h1>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<!-- Add Book Form -->
+<h2>Add Book</h2>
+<form action="/add" method="POST">
+    <input type="text" name="title" placeholder="Enter Title" required>
+    <input type="text" name="author" placeholder="Enter Author" required>
+    <input type="number" name="quantity" placeholder="Enter Quantity" required>
+    <button type="submit" class="add-btn">Add</button>
+</form>
+
+<!-- Books Table -->
+<h2>All Books</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Quantity</th>
+        <th>Action</th>
+    </tr>
+    {% for b in books %}
+    <tr>
+        <td>{{ b[0] }}</td>
+        <td>{{ b[1] }}</td>
+        <td>{{ b[2] }}</td>
+        <td>{{ b[3] }}</td>
+        <td>
+            <!-- Delete Button -->
+            <form action="/delete/{{ b[0] }}" method="POST" style="display:inline;">
+                <button type="submit" class="delete-btn" onclick="return confirm('Delete this book?');">Delete</button>
+            </form>
+            <!-- Edit Button -->
+            <a href="/edit/{{ b[0] }}"><button type="button" class="edit-btn">Edit</button></a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- Issue Book Form -->
+<h2>Issue Book</h2>
+<form action="/issue" method="POST">
+    <select name="book_id" required>
+        {% for b in books %}
+        <option value="{{ b[0] }}">{{ b[1] }} (Available: {{ b[3] }})</option>
+        {% endfor %}
+    </select>
+    <input type="text" name="borrower_name" placeholder="Borrower Name" required>
+    <button type="submit" class="issue-btn">Issue</button>
+</form>
+
+<!-- Issued Books Table -->
+<h2>Issued Books</h2>
+<table>
+    <tr>
+        <th>Issue ID</th>
+        <th>Book Title</th>
+        <th>Borrower Name</th>
+        <th>Issue Date</th>
+        <th>Action</th>
+    </tr>
+    {% for i in issued_books %}
+    <tr>
+        <td>{{ i[0] }}</td>
+        <td>{{ i[1] }}</td>
+        <td>{{ i[2] }}</td>
+        <td>{{ i[3] }}</td>
+        <td>
+            <form action="/return/{{ i[0] }}" method="POST" style="display:inline;">
+                <button type="submit" class="return-btn">Return</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- JavaScript for confirmation dialogs -->
+<script>
+    // Confirm before issuing a book
+    const issueForm = document.querySelector('form[action="/issue"]');
+    if(issueForm) {
+        issueForm.addEventListener('submit', function(e) {
+            const bookSelect = this.querySelector('select[name="book_id"]');
+            const bookName = bookSelect.options[bookSelect.selectedIndex].text;
+            if(!confirm(`Are you sure you want to issue "${bookName}"?`)) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    // Confirm before returning a book
+    const returnButtons = document.querySelectorAll('.return-btn');
+    returnButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            if(!confirm('Are you sure you want to return this book?')) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
+
+

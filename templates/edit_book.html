@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Book</title>
+    <style>
+        input {
+            padding: 6px;
+            margin: 5px;
+        }
+        button {
+            padding: 6px 12px;
+            border: none;
+            cursor: pointer;
+        }
+        .update-btn {
+            background-color: green;
+            color: white;
+        }
+        .update-btn:hover {
+            background-color: darkgreen;
+        }
+    </style>
+</head>
+<body>
+    <h2>Edit Book</h2>
+    <form action="/update/{{ book[0] }}" method="POST">
+        <input type="text" name="title" value="{{ book[1] }}" required>
+        <input type="text" name="author" value="{{ book[2] }}" required>
+        <input type="number" name="quantity" value="{{ book[3] }}" required>
+        <button type="submit" class="update-btn">Update</button>
+    </form>
+</body>
+</html>
